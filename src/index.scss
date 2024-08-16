@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer primereact;
+@import 'primereact/resources/themes/lara-light-blue/theme.css' layer(primereact);
+
+@layer primeflex;
+@import 'primeflex/primeflex.css' layer(primeflex);
+
+@layer primeicon;
+@import 'primeicons/primeicons.css' layer(primeicon);
+
+
+
+
+@layer base {
+    * {
+        font-family: "Inter", sans-serif;
+    }
+
+    body , #root {
+        min-width: 100vw;
+        min-height: 100vh;
+    }
+
+    #root {
+        background-position: center;
+        background-repeat:no-repeat ;
+        background-color:aliceblue 
+    }
+
+
+    @import '/src/layers/custom.scss';
+}
