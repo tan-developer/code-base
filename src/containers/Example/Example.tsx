@@ -1,19 +1,14 @@
 import useToast from "@/hooks/useToast";
+import { PromiseBeforeInterceptor } from "@/interceptors/PromisesApiCallInterceptor";
 import MockApiService from "@/services/mockApiService";
 import { AxiosResponse } from "axios";
 import { Button } from "primereact/button";
 import React, { memo } from "react";
+import AbortContainer from "@/utils/abort-controller";
 
 
 const promise = () => new Promise((_ , reject) => setTimeout(() => reject({ name: 'Sonner' }), 2000));
 
-const logicPromise = <T = any>(promises : Promise<AxiosResponse<T>>) => new Promise((resolve , reject) => {
-  promises.then((data) => {
-    resolve(data)
-  }).catch((error) => {
-    reject(error)
-  })
-});
 
 const mockService = new MockApiService();
 
@@ -53,11 +48,19 @@ const Home: React.FC = () => {
   const onGetData = async () => {
     const res = mockService.getMockDataGet({ name: 'Sonner' });
 
-    showPromiseToast(logicPromise(res) , {
+    showPromiseToast(res , {
       loading: "Loading...",
-      success: "Success",
+      success: (data) => {
+        return "Success"
+      },
       error: (data) => {
-        return data
+        return data?.message;
+      },
+      cancel: {
+        label: 'Click to abort',
+        onClick: () => {
+          AbortContainer.abortAll();
+        },
       },
       finally: () => console.log('Finally')
     });

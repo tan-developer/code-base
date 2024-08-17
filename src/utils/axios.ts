@@ -2,6 +2,7 @@ import AuthenticateService from "@/auth/AuthenticateService";
 import { env } from "@/config/env";
 import { CustomAxiosRequestConfig } from "@/types/IAxios";
 import Axios, {AxiosError,AxiosResponse,} from "axios";
+import AbortContainer from "./abort-controller";
 
 
 const defaultConfig : CustomAxiosRequestConfig = {
@@ -37,27 +38,40 @@ api.interceptors.request.use(requestInterceptor);
 
 api.interceptors.response.use(
   (response: AxiosResponse) => {
+    // 2xx Response status code goes here
+    
     return response;
   },
   (error: AxiosError) => {
-    
-    return error;
+    // Axios consider 4xx and 5xx as error
+
+    throw Error(error.message)
   }
 );
 
 export const get = <T = any>(
   url: string,
-  config: CustomAxiosRequestConfig = defaultConfig
+  config: CustomAxiosRequestConfig = defaultConfig,
+  abortController?: AbortController
 ): Promise<AxiosResponse<T>> => {
-  return customRequest<T>({ ...config, url, method: "GET" });
+  if (!abortController) {
+    abortController = AbortContainer.register();
+  }
+
+  return customRequest<T>({ ...config, url, method: "GET" , signal: abortController?.signal });
 };
 
 export const post = <T = any>(
   url: string,
   data?: any,
-  config: CustomAxiosRequestConfig = defaultConfig
+  config: CustomAxiosRequestConfig = defaultConfig,
+  abortController?: AbortController
 ): Promise<AxiosResponse<T>> => {
-  return customRequest<T>({ ...config, url, method: "POST" , data });
+  
+  if (!abortController) {
+    abortController = AbortContainer.register();
+  }
+  return customRequest<T>({ ...config, url, method: "POST" , data , signal: abortController?.signal });
 }
 
 
